@@ -1,0 +1,37 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: pu4-redis
+    ports:
+      - "6384:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  inventory-service:
+    image: node:20-alpine
+    container_name: pu4-inventory-service
+    working_dir: /app
+    command: sh -c "npm ci && node service.js"
+    volumes:
+      - ./:/app
+    environment:
+      PORT: 8084
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MY_IP: 127.0.0.1
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "8084:8084"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:8084/', (r) => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
