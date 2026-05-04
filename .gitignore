@@ -1,0 +1,22 @@
+.agents
+skills-lock.json
+
+/node_modules
+/.vscode/
+
+# Ignore dependency folders in all subdirectories
+**/node_modules/
+**/*.tsbuildinfo
+
+# Ignore environment files in all subdirectories
+**/.env
+
+/user-service/node_modules/
+/user-service/.env
+
+/.vscode/
+
+/**/dist/
+/**/build/
+
+/_tasks/
